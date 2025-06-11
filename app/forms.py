@@ -4,6 +4,11 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Selec
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 from app.models import User
 
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField,TextAreaField, IntegerField, TimeField
+from wtforms_sqlalchemy.fields import QuerySelectField
+from app.models import User
+
+
 # Registration Form
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -30,3 +35,21 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+
+def instructor_query():
+    return User.query.filter_by(role='instructor')
+
+class CourseForm(FlaskForm):
+    title = StringField('Course Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    # این فیلد به صورت یک منوی کشویی، لیست اساتید را نمایش می‌دهد
+    instructor = QuerySelectField('Instructor',query_factory=instructor_query,get_label='username',allow_blank=False)
+    day_of_week = SelectField('Day of Week', choices=[
+        ('Saturday', 'Saturday'), ('Sunday', 'Sunday'), ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'), ('Thursday', 'Thursday'), ('Friday', 'Friday')
+    ], validators=[DataRequired()])
+    start_time = TimeField('Start Time', validators=[DataRequired()])
+    end_time = TimeField('End Time', validators=[DataRequired()])
+    capacity = IntegerField('Capacity', validators=[DataRequired()])
+    submit = SubmitField('Save Course')

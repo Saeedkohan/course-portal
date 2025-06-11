@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">{{ legend }}</h3>
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">عنوان دوره</label>
+                            {{ form.title(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">توضیحات</label>
+                            {{ form.description(class="form-control", rows=5) }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="instructor" class="form-label">استاد</label>
+                            {{ form.instructor(class="form-select") }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="day_of_week" class="form-label">روز هفته</label>
+                                {{ form.day_of_week(class="form-select") }}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="start_time" class="form-label">ساعت شروع</label>
+                                {{ form.start_time(class="form-control") }}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="end_time" class="form-label">ساعت پایان</label>
+                                {{ form.end_time(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="capacity" class="form-label">ظرفیت</label>
+                            {{ form.capacity(class="form-control") }}
+                        </div>
+                    </fieldset>
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
