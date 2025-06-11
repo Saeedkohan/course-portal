@@ -1,0 +1,30 @@
+/* file: app/static/css/style.css */
+
+/* 1. Import a modern Persian font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+
+/* 2. Apply the font to the entire application */
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    font-weight: 400; /* Set a default font weight */
+}
+
+/* 3. Minor improvements and adjustments */
+
+/* Make form labels slightly bolder */
+.form-label {
+    font-weight: 500;
+}
+
+/* Ensure dropdown menus in the navbar are also RTL */
+.dropdown-menu {
+    left: 0 !important; /* Override Bootstrap's default for RTL */
+    right: auto !important;
+}
+
+/* A subtle hover effect for cards (e.g., course list) */
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}

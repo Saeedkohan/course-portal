@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    {# Admin Dashboard #}
+    {% if current_user.role == 'admin' %}
+    <h1 class="mb-4">Admin Dashboard</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text fs-2">152</p> {# This should be dynamic later #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Courses</h5>
+                    <p class="card-text fs-2">24</p> {# This should be dynamic later #}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Enrollments</h5>
+                    <p class="card-text fs-2">478</p> {# This should be dynamic later #}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <h3>Quick Actions</h3>
+        <a href="#" class="btn btn-lg btn-secondary">Manage Courses</a>
+        <a href="#" class="btn btn-lg btn-secondary">Manage Users</a>
+    </div>
+
+    {# Student Dashboard #}
+    {% elif current_user.role == 'student' %}
+    <h1 class="mb-4">Student Dashboard</h1>
+    <p>Welcome back, {{ current_user.username }}!</p>
+    <div class="card">
+        <div class="card-header">
+            My Enrolled Courses
+        </div>
+        <div class="list-group list-group-flush">
+            {# This should be a loop later #}
+            <a href="#" class="list-group-item list-group-item-action">Web Programming - Sat 10:00-12:00</a>
+            <a href="#" class="list-group-item list-group-item-action">Artificial Intelligence - Sun 14:00-16:00</a>
+        </div>
+    </div>
+
+    {# Instructor Dashboard #}
+    {% elif current_user.role == 'instructor' %}
+     <h1 class="mb-4">Instructor Dashboard</h1>
+    <p>Welcome back, Professor {{ current_user.username }}!</p>
+    <div class="card">
+        <div class="card-header">
+            Courses You Teach
+        </div>
+        <div class="list-group list-group-flush">
+             {# This should be a loop later #}
+            <a href="#" class="list-group-item list-group-item-action">Advanced Python</a>
+            <a href="#" class="list-group-item list-group-item-action">Database Design</a>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}

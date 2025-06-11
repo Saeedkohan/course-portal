@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">ایجاد حساب کاربری</h3>
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">نام کاربری</label>
+                        {{ form.username(class="form-control", id="username") }}
+                        {% for error in form.username.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">ایمیل</label>
+                        {{ form.email(class="form-control", id="email") }}
+                        {% for error in form.email.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">رمز عبور</label>
+                        {{ form.password(class="form-control", id="password") }}
+                        {% for error in form.password.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password2" class="form-label">تکرار رمز عبور</label>
+                        {{ form.password2(class="form-control", id="password2") }}
+                        {% for error in form.password2.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="role" class="form-label">نقش شما</label>
+                        {{ form.role(class="form-select", id="role") }}
+                        {% for error in form.role.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-primary btn-lg", value="ایجاد حساب") }}
+                    </div>
+                </form>
+                 <div class="text-center mt-3">
+                    <small>قبلاً ثبت‌نام کرده‌اید؟ <a href="{{ url_for('login') }}">وارد شوید</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
