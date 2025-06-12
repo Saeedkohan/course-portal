@@ -1,5 +1,3 @@
-
-
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 
@@ -7,14 +5,16 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User
 
-from  app.forms import CourseForm
+from app.forms import CourseForm
 from app.models import Course
 from flask import abort
+
+from app.models import Enrollment
+
 
 @app.route('/')
 @app.route('/index')
 def index():
-
     if not current_user.is_authenticated:
         return render_template('home.html', title='Welcome')
 
@@ -24,6 +24,7 @@ def index():
 @app.route('/home')
 def home():
     return render_template('home.html', title='Welcome')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -40,12 +41,14 @@ def login():
         return redirect(url_for('index'))
     return render_template('login.html', title='Login', form=form)
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('home'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -87,6 +90,7 @@ def create_course():
         return redirect(url_for('manage_courses'))
     return render_template('course_form.html', title='Create Course', form=form, legend='Create a New Course')
 
+
 @app.route('/manage/courses')
 @login_required
 def manage_courses():
@@ -105,10 +109,8 @@ def manage_courses():
 def edit_course(course_id):
     course = Course.query.get_or_404(course_id)
 
-
     if current_user.role != 'admin' and course.instructor_id != current_user.id:
         abort(403)
-
 
     form = CourseForm()
 
@@ -141,7 +143,6 @@ def edit_course(course_id):
 def delete_course(course_id):
     course = Course.query.get_or_404(course_id)
 
-
     if current_user.role != 'admin' and course.instructor != current_user:
         abort(403)
 
@@ -149,3 +150,82 @@ def delete_course(course_id):
     db.session.commit()
     flash('The course has been deleted.', 'danger')
     return redirect(url_for('manage_courses'))
+
+
+@app.route('/courses')
+def courses():
+    all_courses = Course.query.options(db.joinedload(Course.instructor)).order_by(Course.title).all()
+
+    enrollment_counts = {
+        enrollment.course_id: enrollment.count
+        for enrollment in db.session.query(
+            Enrollment.course_id, db.func.count(Enrollment.course_id).label('count')
+        ).group_by(Enrollment.course_id).all()
+    }
+
+
+    student_enrollments_ids = []
+
+    if current_user.is_authenticated and current_user.role == 'student':
+        student_enrollments_ids = [
+            e.course_id for e in Enrollment.query.filter_by(user_id=current_user.id).all()
+        ]
+
+
+    return render_template(
+        'courses.html',
+        title='Courses',
+        courses=all_courses,
+        enrollment_counts=enrollment_counts,
+        student_enrollments_ids=student_enrollments_ids
+    )
+
+@app.route('/course/<int:course_id>')
+def course_detail(course_id):
+    course = Course.query.get_or_404(course_id)
+
+    enrollment_count = Enrollment.query.filter_by(course_id=course.id).count()
+    remaining_capacity = course.capacity - enrollment_count
+    return render_template(
+        'course_detail.html',
+        title=course.title,
+        course=course,
+        remaining_capacity=remaining_capacity
+    )
+
+
+@app.route('/enroll/<int:course_id>', methods=['POST'])
+@login_required
+def enroll(course_id):
+    if current_user.role != "student":
+        flash('Only students can enroll in courses.', 'warning')
+        return redirect(url_for('courses'))
+
+    course_to_enroll = Course.query.get_or_404(course_id)
+
+    existing_enrollment = Enrollment.query.filter_by(
+        user_id=current_user.id,
+        course_id=course_to_enroll.id
+    ).first()
+    if existing_enrollment:
+        flash('You are already enrolled in this course.', 'info')
+        return redirect(url_for('courses'))
+
+    enrolled_count = Enrollment.query.filter_by(course_id=course_to_enroll.id).count()
+    if enrolled_count >= course_to_enroll.capacity:
+        flash('This course is full.', 'danger')
+        return redirect(url_for('course_detail', course_id=course_id))
+
+    student_courses = Course.query.join(Enrollment).filter(Enrollment.user_id == current_user.id).all()
+    for enrolled_course in student_courses:
+        if enrolled_course.day_of_week == course_to_enroll.day_of_week:
+            if (
+                    enrolled_course.start_time < course_to_enroll.end_time and course_to_enroll.start_time < enrolled_course.end_time):
+                flash(f'Time conflict with course: {enrolled_course.title}', 'danger')
+                return redirect(url_for('course_detail', course_id=course_id))
+
+    new_enrollment = Enrollment(user_id=current_user.id, course_id=course_to_enroll.id)
+    db.session.add(new_enrollment)
+    db.session.commit()
+    flash(f'You have successfully enrolled in {course_to_enroll.title}!', 'success')
+    return redirect(url_for('courses'))

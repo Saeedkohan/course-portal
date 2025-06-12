@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mb-4 mb-lg-0">
+            <h1 class="display-5">{{ course.title }}</h1>
+            <p class="lead text-muted">ارائه توسط: {{ course.instructor.username }}</p>
+            <hr>
+
+            <h4 class="mt-4">توضیحات کامل دوره</h4>
+            <p>{{ course.description }}</p>
+
+            <h4 class="mt-4">پیشنیازها</h4>
+            <p>در حال حاضر پیش نیازی برای این دوره تعریف نشده است.</p>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 2rem;">
+                <div class="card-header fw-bold">
+                    اطلاعات کلیدی دوره
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>استاد:</strong> <span>{{ course.instructor.username }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>روز برگزاری:</strong> <span>{{ course.day_of_week }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>ساعت:</strong> <span>{{ course.start_time.strftime('%H:%M') }} الی {{ course.end_time.strftime('%H:%M') }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>ظرفیت کل:</strong> <span class="badge bg-secondary rounded-pill">{{ course.capacity }} نفر</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>ظرفیت باقی‌مانده:</strong>
+                        <span class="badge bg-{% if remaining_capacity > 5 %}success{% elif remaining_capacity > 0 %}warning{% else %}danger{% endif %} rounded-pill">
+                            {{ remaining_capacity }} نفر
+                        </span>
+                    </li>
+                </ul>
+                <div class="card-body text-center p-3">
+                    {% if remaining_capacity > 0 %}
+                    <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-lg w-100">ثبت‌نام در این دوره</button>
+                    </form>
+                    {% else %}
+                    <button type="button" class="btn btn-danger btn-lg w-100" disabled>ظرفیت تکمیل است</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

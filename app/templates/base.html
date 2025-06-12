@@ -8,7 +8,7 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <title>{% if title %}{{ title }}{% else %}پورتال آموزشی{% endif %}</title>
+    <title>{% if title %}{{ title }} - پورتال آموزشی{% else %}پورتال آموزشی{% endif %}</title>
 </head>
 <body class="bg-light">
 
@@ -19,18 +19,32 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">صفحه اصلی</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('courses') }}">لیست دوره‌ها</a>
+                    </li>
+
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role in ['admin', 'instructor'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('manage_courses') }}">مدیریت دوره‌ها</a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
                     {% if current_user.is_anonymous %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('login') }}">ورود</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">ثبت‌نام</a>
+                        <a class="nav-link btn btn-primary btn-sm text-white" href="{{ url_for('register') }}">ثبت‌نام</a>
                     </li>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">دوره‌های من</a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                             سلام، {{ current_user.username }}!
@@ -64,7 +78,7 @@
     
     <footer class="container text-center mt-5 mb-3 text-muted">
         <hr>
-        <p>&copy; ۱۴۰۴ - پورتال آموزشی هوشمند. تمامی حقوق محفوظ است.</p>
+        <p> ۱۴۰۴ - پورتال آموزشی هوشمند.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

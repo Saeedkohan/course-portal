@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4 text-center">لیست دوره‌های آموزشی</h1>
+    <p class="text-center text-muted mb-5">دوره‌ای که به دنبالش هستید را پیدا کرده و در آن ثبت‌نام کنید.</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for course in courses %}
+        {% set enrolled_count = enrollment_counts.get(course.id, 0) %}
+        {% set remaining_capacity = course.capacity - enrolled_count %}
+        <div class="col">
+            <div class="card h-100 shadow-sm card-hover">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="text-decoration-none stretched-link">
+                            {{ course.title }}
+                        </a>
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">استاد: {{ course.instructor.username }}</h6>
+                    <p class="card-text flex-grow-1">{{ course.description[:80] }}...</p>
+
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item small">
+                            <strong>زمان:</strong> {{ course.day_of_week }}, {{ course.start_time.strftime('%H:%M') }} - {{ course.end_time.strftime('%H:%M') }}
+                        </li>
+                        <li class="list-group-item small d-flex justify-content-between">
+                            <span><strong>ظرفیت کل:</strong> {{ course.capacity }} نفر</span>
+                            <span><strong>باقی‌مانده:</strong>
+                                <span class="badge bg-{% if remaining_capacity > 5 %}success{% elif remaining_capacity > 0 %}warning{% else %}danger{% endif %} rounded-pill">
+                                    {{ remaining_capacity }}
+                                </span>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-auto">
+                        {% if course.id in student_enrollments_ids %}
+                            <button type="button" class="btn btn-secondary w-100" disabled>شما ثبت‌نام کرده‌اید</button>
+                        {% elif remaining_capacity > 0 %}
+                            <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary w-100">ثبت‌نام</button>
+                            </form>
+                        {% else %}
+                            <button type="button" class="btn btn-danger w-100" disabled>ظرفیت تکمیل</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-center">در حال حاضر هیچ دوره‌ای برای نمایش وجود ندارد.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
