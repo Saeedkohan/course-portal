@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy.sql.operators import from_
 
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
@@ -10,7 +11,8 @@ from app.models import Course
 from flask import abort
 
 from app.models import Enrollment
-
+from app.models import User, Course, Enrollment
+from app.forms import EditProfileForm
 
 @app.route('/')
 @app.route('/index')
@@ -163,14 +165,12 @@ def courses():
         ).group_by(Enrollment.course_id).all()
     }
 
-
     student_enrollments_ids = []
 
     if current_user.is_authenticated and current_user.role == 'student':
         student_enrollments_ids = [
             e.course_id for e in Enrollment.query.filter_by(user_id=current_user.id).all()
         ]
-
 
     return render_template(
         'courses.html',
@@ -179,6 +179,7 @@ def courses():
         enrollment_counts=enrollment_counts,
         student_enrollments_ids=student_enrollments_ids
     )
+
 
 @app.route('/course/<int:course_id>')
 def course_detail(course_id):
@@ -229,3 +230,75 @@ def enroll(course_id):
     db.session.commit()
     flash(f'You have successfully enrolled in {course_to_enroll.title}!', 'success')
     return redirect(url_for('courses'))
+
+
+@app.route('/my_dashboard')
+@login_required
+def my_dashboard():
+    if current_user.role == 'student':
+        enrolled_courses = Course.query.join(Enrollment).filter(
+            Enrollment.user_id == current_user.id
+        ).order_by(Course.day_of_week, Course.start_time).all()
+        return render_template('dashboard.html', title='My Dashboard', courses=enrolled_courses)
+
+    elif current_user.role in ['admin', 'instructor']:
+        return redirect(url_for('manage_courses'))
+
+    return redirect(url_for('index'))
+
+
+@app.route('/unenroll/<int:course_id>', methods=['POST'])
+@login_required
+def unenroll(course_id):
+    if current_user.role != 'student':
+        abort(403)
+
+    enrollment_to_delete = Enrollment.query.filter_by(
+        user_id=current_user.id,
+        course_id=course_id
+    ).first()
+
+    if enrollment_to_delete:
+        db.session.delete(enrollment_to_delete)
+        db.session.commit()
+        flash('You have successfully unenrolled from the course.', 'success')
+    else:
+        flash('Enrollment record not found.', 'danger')
+
+    return redirect(url_for('my_dashboard'))
+
+
+@app.route('/course/<int:course_id>/roster')
+@login_required
+def course_roster(course_id):
+    course = Course.query.get_or_404(course_id)
+
+    if current_user.role != 'admin' and course.instructor_id != current_user.id:
+        abort(403)
+
+    enrollments = Enrollment.query.filter_by(course_id=course.id).all()
+
+    students = [enrollment.student for enrollment in enrollments]
+
+    return render_template('roster.html', title=f'Roster for {course.title}', course=course, students=students)
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = EditProfileForm(current_user.username, current_user.email)
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        if form.password.data:
+            current_user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your changes have been saved.', 'success')
+        return redirect(url_for('profile'))
+
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+
+    return render_template('profile.html', title='My Profile', form=form)

@@ -1,36 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>مدیریت دوره‌ها</h1>
-        <a href="{{ url_for('create_course') }}" class="btn btn-success">ایجاد دوره جدید</a>
+        <a href="{{ url_for('create_course') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle-fill me-2"></i>ایجاد دوره جدید
+        </a>
     </div>
 
     <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">لیست دوره‌های شما</h5>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
-                            <th>عنوان</th>
-                            <th>استاد</th>
-                            <th>برنامه زمانی</th>
-                            <th>ظرفیت</th>
-                            <th>عملیات</th>
+                            <th scope="col">#</th>
+                            <th scope="col">عنوان دوره</th>
+                            <th scope="col">استاد</th>
+                            <th scope="col">برنامه زمانی</th>
+                            <th scope="col">ظرفیت</th>
+                            <th scope="col" class="text-center">عملیات</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for course in courses %}
                         <tr>
-                            <td>{{ course.title }}</td>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>
+                                <a href="{{ url_for('course_detail', course_id=course.id) }}" class="text-decoration-none fw-bold">
+                                    {{ course.title }}
+                                </a>
+                            </td>
                             <td>{{ course.instructor.username }}</td>
                             <td>{{ course.day_of_week }}, {{ course.start_time.strftime('%H:%M') }} - {{ course.end_time.strftime('%H:%M') }}</td>
                             <td>{{ course.capacity }}</td>
-                            <td>
-                                <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn btn-sm btn-outline-primary">ویرایش</a>
+                            <td class="text-center">
+                                <a href="{{ url_for('course_roster', course_id=course.id) }}" class="btn btn-sm btn-info" title="مشاهده لیست دانشجویان">
+                                    دانشجویان
+                                </a>
+
+                                <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn btn-sm btn-primary" title="ویرایش دوره">
+                                    ویرایش
+                                </a>
 
                                 <form action="{{ url_for('delete_course', course_id=course.id) }}" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    <button type="submit" class="btn btn-sm btn-danger" title="حذف دوره"
                                             onclick="return confirm('آیا از حذف این دوره اطمینان دارید؟ این عمل غیرقابل بازگشت است.')">
                                         حذف
                                     </button>
@@ -39,7 +57,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center">هیچ دوره‌ای برای نمایش وجود ندارد.</td>
+                            <td colspan="6" class="text-center text-muted py-4">هیچ دوره‌ای برای نمایش وجود ندارد.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -47,4 +65,5 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

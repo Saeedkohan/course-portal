@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('manage_courses') }}">مدیریت دوره‌ها</a></li>
+            <li class="breadcrumb-item active" aria-current="page">لیست دانشجویان</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-2">لیست دانشجویان دوره: <span class="text-primary">{{ course.title }}</span></h1>
+    <p class="text-muted">استاد: {{ course.instructor.username }}</p>
+    <hr>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">تعداد کل دانشجویان ثبت‌نام شده: {{ students|length }} نفر</h5>
+        </div>
+        <div class="card-body">
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">نام کاربری دانشجو</th>
+                            <th scope="col">ایمیل دانشجو</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ student.username }}</td>
+                            <td>{{ student.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">هنوز هیچ دانشجویی در این دوره ثبت‌نام نکرده است.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -28,11 +28,15 @@
                     </li>
 
                     {% if current_user.is_authenticated %}
-                        {% if current_user.role in ['admin', 'instructor'] %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_courses') }}">مدیریت دوره‌ها</a>
+                            <a class="nav-link active" href="{{ url_for('my_dashboard') }}">
+                                {% if current_user.role == 'student' %}
+                                    داشبورد من
+                                {% else %}
+                                    پنل مدیریت
+                                {% endif %}
+                            </a>
                         </li>
-                        {% endif %}
                     {% endif %}
                 </ul>
 
@@ -50,7 +54,7 @@
                             سلام، {{ current_user.username }}!
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">پروفایل</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">پروفایل</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ url_for('logout') }}">خروج</a></li>
                         </ul>
@@ -75,10 +79,10 @@
 
         {% block content %}{% endblock %}
     </main>
-    
+
     <footer class="container text-center mt-5 mb-3 text-muted">
         <hr>
-        <p> ۱۴۰۴ - پورتال آموزشی هوشمند.</p>
+        <p>&copy; ۱۴۰۴ - پورتال آموزشی هوشمند. تمامی حقوق محفوظ است.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

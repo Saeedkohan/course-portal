@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">داشبورد من</h1>
+    <p>در این صفحه می‌توانید دوره‌هایی که در آن‌ها ثبت‌نام کرده‌اید و برنامه هفتگی خود را مشاهده کنید.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h3>دوره‌های ثبت‌نام شده</h3>
+        </div>
+        <div class="card-body">
+            {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>عنوان دوره</th>
+                            <th>استاد</th>
+                            <th>برنامه زمانی</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('course_detail', course_id=course.id) }}" class="text-decoration-none fw-bold">
+                                    {{ course.title }}
+                                </a>
+                            </td>
+                            <td>{{ course.instructor.username }}</td>
+                            <td>{{ course.day_of_week }}, {{ course.start_time.strftime('%H:%M') }} - {{ course.end_time.strftime('%H:%M') }}</td>
+                            <td>
+                                <form action="{{ url_for('unenroll', course_id=course.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-warning"
+                                            onclick="return confirm('آیا از لغو ثبت‌نام در این دوره اطمینان دارید؟')">
+                                        لغو ثبت‌نام
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">شما هنوز در هیچ دوره‌ای ثبت‌نام نکرده‌اید. <a href="{{ url_for('courses') }}" class="alert-link">لیست دوره‌ها را مشاهده کنید.</a></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

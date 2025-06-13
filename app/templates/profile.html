@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">پروفایل کاربری</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <img src="https://via.placeholder.com/150" class="rounded-circle mb-3" alt="Avatar">
+                    <h4 class="card-title">{{ current_user.username }}</h4>
+                    <p class="text-muted">{{ current_user.role.title() }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    ویرایش اطلاعات
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">نام کاربری</label>
+                            {{ form.username(class="form-control") }}
+                            {% for error in form.username.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">ایمیل</label>
+                            {{ form.email(class="form-control") }}
+                            {% for error in form.email.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        
+                        <hr>
+                        <p class="text-muted small">برای تغییر رمز عبور، فیلدهای زیر را پر کنید. در غیر این صورت، آن‌ها را خالی بگذارید.</p>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">رمز عبور جدید</label>
+                            {{ form.password(class="form-control") }}
+                            {% for error in form.password.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password2" class="form-label">تکرار رمز عبور جدید</label>
+                            {{ form.password2(class="form-control") }}
+                            {% for error in form.password2.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary", value="ذخیره تغییرات") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
