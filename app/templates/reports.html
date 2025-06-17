@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">گزارشات و آمار سیستم</h1>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">تعداد دانشجویان</h5>
+                    <p class="display-4">{{ student_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">تعداد اساتید</h5>
+                    <p class="display-4">{{ instructor_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">تعداد دوره‌ها</h5>
+                    <p class="display-4">{{ course_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-secondary h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">تعداد ترم‌ها</h5>
+                    <p class="display-4">{{ term_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">محبوب‌ترین دوره‌ها (بر اساس تعداد ثبت‌نام)</h5>
+                </div>
+                <div class="card-body">
+                    {% if popular_courses %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">عنوان دوره</th>
+                                    <th scope="col" class="text-center">تعداد ثبت‌نام</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in popular_courses %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{ course.title }}</td>
+                                    <td class="text-center">{{ course.enrollment_count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">هنوز هیچ ثبت‌نامی در سیستم انجام نشده است.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

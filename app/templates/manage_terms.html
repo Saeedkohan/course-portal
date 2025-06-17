@@ -2,41 +2,66 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4">Manage Academic Terms</h1>
     <div class="row">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Create New Term</div>
+            <h2 class="mb-4">ایجاد ترم جدید</h2>
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <form method="POST" action="">
+                    <form method="POST" action="{{ url_for('manage_terms') }}">
                         {{ form.hidden_tag() }}
                         <div class="mb-3">
                             {{ form.name.label(class="form-label") }}
                             {{ form.name(class="form-control") }}
                         </div>
-                        <div class="mb-3 form-check">
+                        <div class="form-check mb-3">
                             {{ form.is_active(class="form-check-input") }}
                             {{ form.is_active.label(class="form-check-label") }}
                         </div>
-                        {{ form.submit(class="btn btn-primary") }}
+                        {{ form.submit(class="btn btn-primary w-100") }}
                     </form>
                 </div>
             </div>
         </div>
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Existing Terms</div>
+            <h2 class="mb-4">لیست ترم‌ها</h2>
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <ul class="list-group">
-                        {% for term in terms %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ term.name }}
-                            {% if term.is_active %}
-                                <span class="badge bg-success">Active</span>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>نام ترم</th>
+                                    <th class="text-center">وضعیت</th>
+                                    <th class="text-center">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for term in terms %}
+                                <tr>
+                                    <td>{{ term.name }}</td>
+                                    <td class="text-center">
+                                        {% if term.is_active %}
+                                            <span class="badge bg-success">فعال</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">غیرفعال</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if term.is_active %}
+                                            <form action="{{ url_for('deactivate_term', term_id=term.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-warning btn-sm">غیرفعال کردن</button>
+                                            </form>
+                                        {% else %}
+                                            <form action="{{ url_for('activate_term', term_id=term.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-success btn-sm">فعال کردن</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

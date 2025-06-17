@@ -1,8 +1,8 @@
-"""Final models rebuild
+"""Create database from final models
 
-Revision ID: 2195d5f45743
+Revision ID: 67d49fd12745
 Revises: 
-Create Date: 2025-06-13 23:34:39.605168
+Create Date: 2025-06-18 03:00:59.284581
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2195d5f45743'
+revision = '67d49fd12745'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -41,6 +41,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=140), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('credits', sa.Integer(), nullable=False),
     sa.Column('day_of_week', sa.String(length=20), nullable=False),
     sa.Column('start_time', sa.Time(), nullable=False),
     sa.Column('end_time', sa.Time(), nullable=False),
@@ -56,6 +57,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('course_id', sa.Integer(), nullable=True),
     sa.Column('status', sa.String(length=20), nullable=False),
+    sa.Column('grade', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['course_id'], ['course.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')

@@ -2,10 +2,15 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4 text-center">لیست دوره‌های آموزشی</h1>
-    <p class="text-center text-muted mb-5">دوره‌ای که به دنبالش هستید را پیدا کرده و در آن ثبت‌نام کنید.</p>
+    <div class="text-center">
+        <h1 class="mb-2">لیست دوره‌های آموزشی</h1>
+        {% if active_term %}
+            <p class="text-muted mb-5">دوره‌های ارائه شده برای: <span class="fw-bold">{{ active_term.name }}</span></p>
+        {% endif %}
+    </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {# حالا به جای courses، روی pagination.items حلقه می‌زنیم #}
         {% for course in courses %}
         {% set enrolled_count = enrollment_counts.get(course.id, 0) %}
         {% set remaining_capacity = course.capacity - enrolled_count %}
@@ -54,5 +59,32 @@
         </div>
         {% endfor %}
     </div>
+
+    شروع بخش جدید: کنترل‌های صفحه‌بندی <--- -->
+    {% if pagination and pagination.pages > 1 %}
+    <nav aria-label="Course navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('courses', page=pagination.prev_num) }}">قبلی</a>
+            </li>
+
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('courses', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('courses', page=pagination.next_num) }}">بعدی</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+    پایان بخش صفحه‌بندی <--- -->
+
 </div>
 {% endblock %}

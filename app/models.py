@@ -1,18 +1,18 @@
-
+# file: app/models.py (نسخه نهایی با افزودن نمره و واحد)
 
 from app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import time
 
-
+# --- جدول واسط برای پیشنیازها ---
 prerequisites = db.Table('prerequisites',
                          db.Column('course_id', db.Integer, db.ForeignKey('course.id'), primary_key=True),
                          db.Column('prerequisite_id', db.Integer, db.ForeignKey('course.id'), primary_key=True)
                          )
 
 
-
+# --- تعریف مدل‌ها ---
 
 class Term(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,6 +48,12 @@ class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(140), nullable=False)
     description = db.Column(db.Text)
+
+    # ---> شروع تغییر ۱ <---
+    # افزودن فیلد واحد درسی
+    credits = db.Column(db.Integer, nullable=False, default=3)
+    # ---> پایان تغییر ۱ <---
+
     day_of_week = db.Column(db.String(20), nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
@@ -55,8 +61,6 @@ class Course(db.Model):
     instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     term_id = db.Column(db.Integer, db.ForeignKey('term.id'), nullable=False)
     enrollments = db.relationship('Enrollment', backref='course', lazy='dynamic', foreign_keys='Enrollment.course_id')
-
-
     prereqs = db.relationship(
         'Course', secondary=prerequisites,
         primaryjoin=(prerequisites.c.course_id == id),
@@ -73,14 +77,19 @@ class Enrollment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-
     status = db.Column(db.String(20), default='enrolled', nullable=False)
+
+    # ---> شروع تغییر ۲ <---
+    # افزودن فیلد نمره. می‌تواند خالی باشد تا زمانی که استاد نمره را وارد کند
+    grade = db.Column(db.Integer, nullable=True)
+
+    # ---> پایان تغییر ۲ <---
 
     def __repr__(self):
         return f'<Enrollment user_id={self.user_id} course_id={self.course_id}>'
 
 
-
+# --- توابع کمکی ---
 
 @login.user_loader
 def load_user(id):

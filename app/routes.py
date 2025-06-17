@@ -9,7 +9,7 @@ from app.forms import (LoginForm, RegistrationForm, CourseForm,
                        EditProfileForm, TermForm)
 from app.models import User, Course, Enrollment, Term
 
-
+from sqlalchemy import func,desc
 # =================================================================
 # --- Main and Public Routes
 # =================================================================
@@ -29,24 +29,36 @@ def home():
     return render_template('home.html', title='خوش آمدید')
 
 
+# file: app/routes.py (فقط تابع courses را جایگزین کنید)
+
 @app.route('/courses')
 def courses():
-    """Displays the list of available courses for the active term."""
+    """صفحه نمایش لیست دوره‌های قابل ثبت‌نام (به صورت صفحه‌بندی شده)."""
+    # گرفتن شماره صفحه از URL (e.g., /courses?page=2). اگر نبود، صفحه ۱ را در نظر بگیر.
+    page = request.args.get('page', 1, type=int)
+
     active_term = Term.query.filter_by(is_active=True).first()
-    all_courses = []
+    pagination = None  # مقدار اولیه
+
     if not active_term:
         flash('در حال حاضر هیچ ترم فعالی برای ثبت‌نام وجود ندارد.', 'warning')
     else:
-        all_courses = Course.query.filter_by(term_id=active_term.id).options(db.joinedload(Course.instructor)).order_by(
-            Course.title).all()
+        # به جای .all() از .paginate() استفاده می‌کنیم
+        # per_page=6 یعنی در هر صفحه ۶ دوره نمایش داده شود
+        pagination = Course.query.filter_by(term_id=active_term.id) \
+            .options(db.joinedload(Course.instructor)) \
+            .order_by(Course.title) \
+            .paginate(page=page, per_page=6, error_out=False)
 
+    all_courses = pagination.items if pagination else []
+
+    # ... (بقیه کد تابع courses برای محاسبه enrollment_counts و student_enrollments_ids بدون تغییر باقی می‌ماند)
     enrollment_counts = {
         e.course_id: e.count
         for e in db.session.query(
             Enrollment.course_id, db.func.count(Enrollment.course_id).label('count')
         ).group_by(Enrollment.course_id).all()
     }
-
     student_enrollments_ids = set()
     if current_user.is_authenticated and current_user.role == 'student':
         student_enrollments_ids = {e.course_id for e in current_user.enrollments}
@@ -54,12 +66,12 @@ def courses():
     return render_template(
         'courses.html',
         title='لیست دوره‌ها',
+        pagination=pagination,  # آبجکت pagination را به قالب ارسال می‌کنیم
         courses=all_courses,
         enrollment_counts=enrollment_counts,
         student_enrollments_ids=student_enrollments_ids,
         active_term=active_term
     )
-
 
 @app.route('/course/<int:course_id>')
 def course_detail(course_id):
@@ -336,12 +348,119 @@ def delete_course(course_id):
     return redirect(url_for('manage_courses'))
 
 
+# file: app/routes.py (تابع course_roster را جایگزین کنید)
+
 @app.route('/course/<int:course_id>/roster')
 @login_required
 def course_roster(course_id):
-    """Page to view the list of enrolled students in a course."""
+    """صفحه نمایش لیست دانشجویان برای ثبت نمره توسط استاد."""
     course = Course.query.get_or_404(course_id)
+
     if current_user.role != 'admin' and course.instructor_id != current_user.id:
         abort(403)
-    students = [enrollment.student for enrollment in course.enrollments]
-    return render_template('roster.html', title=f'دانشجویان دوره {course.title}', course=course, students=students)
+
+    # به جای لیست دانشجویان، لیست کامل ثبت‌نامی‌ها را ارسال می‌کنیم
+    # تا به نمره و ID هر ثبت‌نام دسترسی داشته باشیم
+    enrollments = Enrollment.query.filter_by(course_id=course.id).join(User).order_by(User.username).all()
+
+    return render_template('roster.html', title=f'دانشجویان دوره {course.title}', course=course,
+                           enrollments=enrollments)
+# file: app/routes.py (کد جدید را به بخش مدیریت اضافه کنید)
+
+# در بالای فایل، مطمئن شوید این موارد import شده‌اند:
+# from sqlalchemy import func, desc
+
+# ... (سایر مسیرها)
+
+@app.route('/admin/reports')
+@login_required
+def admin_reports():
+    """صفحه نمایش گزارشات و آمار کلی سیستم (فقط برای ادمین)."""
+    if current_user.role != 'admin':
+        abort(403)
+
+    # محاسبه آمار
+    student_count = User.query.filter_by(role='student').count()
+    instructor_count = User.query.filter_by(role='instructor').count()
+    course_count = Course.query.count()
+    term_count = Term.query.count()
+
+    # پیدا کردن ۵ دوره محبوب‌تر
+    popular_courses = db.session.query(
+        Course.title,
+        db.func.count(Enrollment.id).label('enrollment_count')
+    ).join(Enrollment).group_by(Course.id).order_by(db.desc('enrollment_count')).limit(5).all()
+
+    return render_template(
+        'reports.html',
+        title='System Reports',
+        student_count=student_count,
+        instructor_count=instructor_count,
+        course_count=course_count,
+        term_count=term_count,
+        popular_courses=popular_courses
+    )
+
+
+# file: app/routes.py (این دو تابع را به انتهای فایل اضافه کنید)
+
+@app.route('/term/<int:term_id>/activate', methods=['POST'])
+@login_required
+def activate_term(term_id):
+    """یک ترم را فعال و بقیه را غیرفعال می‌کند."""
+    if current_user.role != 'admin':
+        abort(403)
+
+    # ابتدا تمام ترم‌ها را غیرفعال می‌کنیم
+    Term.query.update({'is_active': False})
+
+    # سپس ترم مورد نظر را فعال می‌کنیم
+    term_to_activate = Term.query.get_or_404(term_id)
+    term_to_activate.is_active = True
+
+    db.session.commit()
+    flash(f'ترم «{term_to_activate.name}» با موفقیت فعال شد.', 'success')
+    return redirect(url_for('manage_terms'))
+
+
+@app.route('/term/<int:term_id>/deactivate', methods=['POST'])
+@login_required
+def deactivate_term(term_id):
+    """یک ترم را غیرفعال می‌کند."""
+    if current_user.role != 'admin':
+        abort(403)
+
+    term_to_deactivate = Term.query.get_or_404(term_id)
+    term_to_deactivate.is_active = False
+
+    db.session.commit()
+    flash(f'ترم «{term_to_deactivate.name}» با موفقیت غیرفعال شد.', 'warning')
+    return redirect(url_for('manage_terms'))
+
+
+# file: app/routes.py (این تابع جدید را به انتها اضافه کنید)
+
+@app.route('/grade_enrollment/<int:enrollment_id>', methods=['POST'])
+@login_required
+def grade_enrollment(enrollment_id):
+    """نمره یک ثبت‌نام خاص را ذخیره می‌کند."""
+    enrollment = Enrollment.query.get_or_404(enrollment_id)
+    course = enrollment.course
+
+    # بررسی سطح دسترسی: فقط مدیر یا استاد همان درس
+    if current_user.role != 'admin' and course.instructor_id != current_user.id:
+        abort(403)
+
+    grade = request.form.get('grade')
+    if grade:
+        try:
+            # اطمینان از اینکه نمره وارد شده یک عدد صحیح است
+            enrollment.grade = int(grade)
+            # اگر نمره وارد شد، وضعیت دانشجو را به گذرانده تغییر می‌دهیم
+            enrollment.status = 'completed'
+            db.session.commit()
+            flash(f'نمره برای کاربر {enrollment.student.username} با موفقیت ثبت شد.', 'success')
+        except ValueError:
+            flash('لطفاً یک نمره معتبر (عدد) وارد کنید.', 'danger')
+
+    return redirect(url_for('course_roster', course_id=course.id))
