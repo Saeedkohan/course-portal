@@ -28,3 +28,24 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.2s ease-in-out;
 }
+
+/* file: app/static/css/style.css (کدهای جدید را به انتها اضافه کنید) */
+
+/* --- Gantt Chart Improvements --- */
+
+/* افزایش فضای اختصاص داده شده به برچسب‌های محور عمودی (روزهای هفته) */
+.mermaid .gantt-chart .left-text-wrapper {
+    width: 120px !important; /* یک مقدار بزرگتر برای جا شدن متن فارسی */
+}
+
+/* استایل‌دهی به تسک‌ها (نوارهای دوره) برای خوانایی بهتر */
+.mermaid .gantt-chart .task {
+    stroke: #5a67d8; /* رنگ حاشیه نوار */
+    fill: #8c9eff;   /* رنگ داخل نوار */
+}
+
+/* تغییر رنگ و فونت نام تسک (عنوان دوره) */
+.mermaid .gantt-chart .task-text {
+    fill: #2d3748;      /* رنگ متن */
+    font-weight: bold;  /* ضخیم کردن فونت */
+}

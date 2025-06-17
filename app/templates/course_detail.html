@@ -6,13 +6,23 @@
         <div class="col-lg-8 mb-4 mb-lg-0">
             <h1 class="display-5">{{ course.title }}</h1>
             <p class="lead text-muted">ارائه توسط: {{ course.instructor.username }}</p>
+            <p><strong>ترم:</strong> {{ course.term.name }}</p>
             <hr>
 
             <h4 class="mt-4">توضیحات کامل دوره</h4>
             <p>{{ course.description }}</p>
 
             <h4 class="mt-4">پیشنیازها</h4>
-            <p>در حال حاضر پیش نیازی برای این دوره تعریف نشده است.</p>
+            {% if course.prereqs.all() %}
+                <ul class="list-unstyled">
+                {% for prereq in course.prereqs %}
+                    <li><i class="bi bi-check-circle-fill text-success"></i> <a href="{{ url_for('course_detail', course_id=prereq.id) }}" class="text-decoration-none">{{ prereq.title }}</a></li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>این دوره هیچ پیشنیازی ندارد.</p>
+            {% endif %}
+
         </div>
 
         <div class="col-lg-4">

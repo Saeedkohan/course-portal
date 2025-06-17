@@ -2,52 +2,56 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4">داشبورد من</h1>
-    <p>در این صفحه می‌توانید دوره‌هایی که در آن‌ها ثبت‌نام کرده‌اید و برنامه هفتگی خود را مشاهده کنید.</p>
+    <h1 class="mb-4 text-center">داشبورد من - برنامه هفتگی</h1>
 
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h3>دوره‌های ثبت‌نام شده</h3>
-        </div>
-        <div class="card-body">
-            {% if courses %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>عنوان دوره</th>
-                            <th>استاد</th>
-                            <th>برنامه زمانی</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for course in courses %}
-                        <tr>
-                            <td>
-                                <a href="{{ url_for('course_detail', course_id=course.id) }}" class="text-decoration-none fw-bold">
-                                    {{ course.title }}
-                                </a>
-                            </td>
-                            <td>{{ course.instructor.username }}</td>
-                            <td>{{ course.day_of_week }}, {{ course.start_time.strftime('%H:%M') }} - {{ course.end_time.strftime('%H:%M') }}</td>
-                            <td>
-                                <form action="{{ url_for('unenroll', course_id=course.id) }}" method="POST">
-                                    <button type="submit" class="btn btn-sm btn-warning"
-                                            onclick="return confirm('آیا از لغو ثبت‌نام در این دوره اطمینان دارید؟')">
-                                        لغو ثبت‌نام
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+    {% if courses %}
+
+    {# تعریف روزهای هفته برای حلقه #}
+    {% set days = [
+        ('Saturday', 'شنبه'), ('Sunday', 'یکشنبه'), ('Monday', 'دوشنبه'),
+        ('Tuesday', 'سه‌شنبه'), ('Wednesday', 'چهارشنبه'), ('Thursday', 'پنج‌شنبه')
+    ] %}
+
+    <div class="row g-3">
+        {# حلقه برای ساختن کارت برای هر روز هفته #}
+        {% for day_en, day_fa in days %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white text-center">
+                    <h5 class="mb-0">{{ day_fa }}</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% set courses_on_this_day = namespace(items=[]) %}
+                    {% for course in courses if course.day_of_week == day_en %}
+                        {% set courses_on_this_day.items = courses_on_this_day.items + [course] %}
+                    {% endfor %}
+
+                    {% if courses_on_this_day.items %}
+                        {% for course in courses_on_this_day.items %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold">{{ course.title }}</h6>
+                                <small class="text-muted">{{ course.start_time.strftime('%H:%M') }} - {{ course.end_time.strftime('%H:%M') }}</small>
+                            </div>
+                            <p class="mb-1 small">استاد: {{ course.instructor.username }}</p>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    {% else %}
+                        <div class="list-group-item text-center text-muted fst-italic">
+                            کلاسی در این روز وجود ندارد.
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            {% else %}
-            <div class="alert alert-info">شما هنوز در هیچ دوره‌ای ثبت‌نام نکرده‌اید. <a href="{{ url_for('courses') }}" class="alert-link">لیست دوره‌ها را مشاهده کنید.</a></div>
-            {% endif %}
         </div>
+        {% endfor %}
     </div>
+
+    {% else %}
+    <div class="alert alert-info">
+        شما هنوز در هیچ دوره‌ای ثبت‌نام نکرده‌اید.
+        <a href="{{ url_for('courses') }}" class="alert-link">لیست دوره‌ها را مشاهده کنید.</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
