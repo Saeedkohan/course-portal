@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4 text-center">کارنامه تحصیلی</h1>
+
+    <div class="row justify-content-center mb-4 text-center">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">معدل کل (GPA)</h5>
+                    <p class="display-6 fw-bold text-primary">{{ "%.2f"|format(gpa) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">مجموع واحدهای گذرانده</h5>
+                    <p class="display-6 fw-bold text-success">{{ total_credits }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">ریز نمرات</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ترم</th>
+                            <th>عنوان دوره</th>
+                            <th class="text-center">واحد</th>
+                            <th>استاد</th>
+                            <th class="text-center">نمره</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr>
+                            <td>{{ enrollment.course.term.name }}</td>
+                            <td>
+                                <a href="{{ url_for('course_detail', course_id=enrollment.course.id) }}" class="text-decoration-none fw-bold">
+                                    {{ enrollment.course.title }}
+                                </a>
+                            </td>
+                            <td class="text-center">{{ enrollment.course.credits }}</td>
+                            <td>{{ enrollment.course.instructor.username }}</td>
+                            <td class="text-center">
+                                {% if enrollment.grade is not none %}
+                                    <span class="fw-bold {% if enrollment.grade >= 10 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ enrollment.grade }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted fst-italic">ثبت نشده</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">هیچ دوره‌ای برای نمایش وجود ندارد.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

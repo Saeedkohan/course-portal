@@ -12,52 +12,51 @@
                         <div class="mb-3">
                             <label for="title" class="form-label">عنوان دوره</label>
                             {{ form.title(class="form-control", id="title") }}
-                            {% for error in form.title.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
                         </div>
                         <div class="mb-3">
                             <label for="description" class="form-label">توضیحات</label>
                             {{ form.description(class="form-control", rows=5, id="description") }}
-                            {% for error in form.description.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="instructor" class="form-label">استاد</label>
+                                {{ form.instructor(class="form-select", id="instructor") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="term" class="form-label">ترم تحصیلی</label>
+                                {{ form.term(class="form-select", id="term") }}
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="instructor" class="form-label">استاد</label>
-                            {{ form.instructor(class="form-select", id="instructor") }}
-                            {% for error in form.instructor.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="term" class="form-label">ترم تحصیلی</label>
-                            {{ form.term(class="form-select", id="term") }}
-                            {% for error in form.term.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="prereqs" class="form-label">پیشنیازها (برای انتخاب چند مورد، کلید Ctrl را نگه دارید)</label>
+                            <label for="prereqs" class="form-label">پیشنیازها</label>
                             {{ form.prereqs(class="form-select", id="prereqs", size=5) }}
-                            {% for error in form.prereqs.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+
+                        <div class="row">
+                             بلوک جدید برای فیلد واحد <--- -->
+                            <div class="col-md-6 mb-3">
+                                <label for="credits" class="form-label">تعداد واحد</label>
+                                {{ form.credits(class="form-control", id="credits") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="capacity" class="form-label">ظرفیت</label>
+                                {{ form.capacity(class="form-control", id="capacity") }}
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="day_of_week" class="form-label">روز هفته</label>
                                 {{ form.day_of_week(class="form-select", id="day_of_week") }}
-                                {% for error in form.day_of_week.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="start_time" class="form-label">ساعت شروع</label>
                                 {{ form.start_time(class="form-control", id="start_time") }}
-                                {% for error in form.start_time.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="end_time" class="form-label">ساعت پایان</label>
                                 {{ form.end_time(class="form-control", id="end_time") }}
-                                {% for error in form.end_time.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="capacity" class="form-label">ظرفیت</label>
-                            {{ form.capacity(class="form-control", id="capacity") }}
-                            {% for error in form.capacity.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
                         </div>
                     </fieldset>
                     <div class="d-grid mt-4">

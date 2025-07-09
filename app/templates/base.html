@@ -43,9 +43,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('login') }}">ورود</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-primary btn-sm text-white" href="{{ url_for('register') }}">ثبت‌نام</a>
-                    </li>
                     {% else %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -54,7 +51,14 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ url_for('profile') }}">پروفایل</a></li>
 
+                            {% if current_user.role == 'student' %}
+                            <li><a class="dropdown-item" href="{{ url_for('transcript') }}">کارنامه</a></li>
+                            {% endif %}
+
                             {% if current_user.role == 'admin' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('manage_users') }}">مدیریت کاربران</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('manage_courses') }}">مدیریت دوره‌ها</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('manage_terms') }}">مدیریت ترم‌ها</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('admin_reports') }}">گزارشات</a></li>
                             {% endif %}
@@ -80,7 +84,6 @@
             {% endfor %}
         {% endif %}
         {% endwith %}
-
         {% block content %}{% endblock %}
     </main>
 
@@ -90,7 +93,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
         mermaid.initialize({ startOnLoad: true });

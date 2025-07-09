@@ -1,40 +1,16 @@
-
-
 from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, BooleanField, SubmitField,
-                     SelectField, TextAreaField, IntegerField, TimeField)
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional
+from wtforms import (StringField, PasswordField, BooleanField,
+                     SubmitField, SelectField, TextAreaField,
+                     IntegerField, TimeField)
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, InputRequired, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from app.models import User, Term, Course
-
-
-
-class RegistrationForm(FlaskForm):
-    username = StringField('نام کاربری', validators=[DataRequired()])
-    email = StringField('ایمیل', validators=[DataRequired(), Email()])
-    password = PasswordField('رمز عبور', validators=[DataRequired()])
-    password2 = PasswordField(
-        'تکرار رمز عبور', validators=[DataRequired(), EqualTo('password', message='رمزهای عبور باید یکسان باشند.')])
-    role = SelectField('نقش', choices=[('student', 'دانشجو'), ('instructor', 'استاد')], validators=[DataRequired()])
-    submit = SubmitField('ثبت‌نام')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('این نام کاربری قبلاً استفاده شده است.')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user is not None:
-            raise ValidationError('این ایمیل قبلاً ثبت شده است.')
-
 
 class LoginForm(FlaskForm):
     username = StringField('نام کاربری', validators=[DataRequired()])
     password = PasswordField('رمز عبور', validators=[DataRequired()])
     remember_me = BooleanField('مرا به خاطر بسپار')
     submit = SubmitField('ورود')
-
 
 class EditProfileForm(FlaskForm):
     username = StringField('نام کاربری', validators=[DataRequired()])
@@ -63,21 +39,14 @@ class EditProfileForm(FlaskForm):
             if user is not None:
                 raise ValidationError('این ایمیل قبلاً ثبت شده است.')
 
-
-
-
 def instructor_query():
-
     return User.query.filter_by(role='instructor').order_by(User.username)
 
 def term_query():
-
     return Term.query.order_by(Term.name.desc())
 
 def course_query():
-
     return Course.query.order_by(Course.title)
-
 
 class CourseForm(FlaskForm):
     title = StringField('عنوان دوره', validators=[DataRequired()])
@@ -90,17 +59,47 @@ class CourseForm(FlaskForm):
         get_label='title',
         allow_blank=True
     )
+    credits = IntegerField('تعداد واحد', validators=[DataRequired(), NumberRange(min=1, max=4)])
     day_of_week = SelectField('روز هفته', choices=[
         ('Saturday', 'شنبه'), ('Sunday', 'یکشنبه'), ('Monday', 'دوشنبه'),
-        ('Tuesday', 'سه‌شنبه'), ('Wednesday', 'چهارشنبه'), ('Thursday', 'پنج‌شنبه'), ('Friday', 'جمعه')
+        ('Tuesday', 'سه‌شنبه'), ('Wednesday', 'چهارشنبه'), ('Thursday', 'پنج‌شنبه')
     ], validators=[DataRequired()])
     start_time = TimeField('ساعت شروع', validators=[DataRequired()])
     end_time = TimeField('ساعت پایان', validators=[DataRequired()])
     capacity = IntegerField('ظرفیت', validators=[DataRequired()])
     submit = SubmitField('ذخیره دوره')
 
-
 class TermForm(FlaskForm):
     name = StringField('نام ترم (مثال: پاییز ۱۴۰۴)', validators=[DataRequired()])
     is_active = BooleanField('آیا این ترم فعال برای ثبت‌نام است؟')
     submit = SubmitField('ذخیره ترم')
+
+class AdminCreateUserForm(FlaskForm):
+    username = StringField('نام کاربری', validators=[DataRequired()])
+    email = StringField('ایمیل', validators=[DataRequired(), Email()])
+    password = PasswordField('رمز عبور موقت', validators=[DataRequired()])
+    role = SelectField('نقش', choices=[('student', 'دانشجو'), ('instructor', 'استاد')], validators=[DataRequired()])
+    submit_create = SubmitField('ایجاد کاربر')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('این نام کاربری قبلاً استفاده شده است.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('این ایمیل قبلاً ثبت شده است.')
+
+class ChangeRoleForm(FlaskForm):
+    role = SelectField('نقش جدید', choices=[('student', 'دانشجو'), ('instructor', 'استاد')])
+    submit_change = SubmitField('ذخیره')
+
+class GradeForm(FlaskForm):
+    grade = IntegerField('نمره',
+        validators=[
+            InputRequired(),
+            NumberRange(min=0, max=20, message='نمره باید بین ۰ و ۲۰ باشد')
+        ]
+    )
+    submit = SubmitField('ثبت')

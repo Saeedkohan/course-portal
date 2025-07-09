@@ -10,7 +10,6 @@
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {# حالا به جای courses، روی pagination.items حلقه می‌زنیم #}
         {% for course in courses %}
         {% set enrolled_count = enrollment_counts.get(course.id, 0) %}
         {% set remaining_capacity = course.capacity - enrolled_count %}
@@ -39,17 +38,22 @@
                         </li>
                     </ul>
 
-                    <div class="mt-auto">
-                        {% if course.id in student_enrollments_ids %}
-                            <button type="button" class="btn btn-secondary w-100" disabled>شما ثبت‌نام کرده‌اید</button>
-                        {% elif remaining_capacity > 0 %}
-                            <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST">
-                                <button type="submit" class="btn btn-primary w-100">ثبت‌نام</button>
-                            </form>
-                        {% else %}
-                            <button type="button" class="btn btn-danger w-100" disabled>ظرفیت تکمیل</button>
-                        {% endif %}
-                    </div>
+                    شروع تغییر اصلی <--- -->
+                    {% if current_user.is_authenticated and current_user.role == 'student' %}
+                        <div class="mt-auto">
+                            {% if course.id in student_enrollments_ids %}
+                                <button type="button" class="btn btn-secondary w-100" disabled>شما ثبت‌نام کرده‌اید</button>
+                            {% elif remaining_capacity > 0 %}
+                                <form action="{{ url_for('enroll', course_id=course.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-primary w-100">ثبت‌نام</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-danger w-100" disabled>ظرفیت تکمیل</button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    پایان تغییر اصلی <--- -->
+
                 </div>
             </div>
         </div>
@@ -60,14 +64,12 @@
         {% endfor %}
     </div>
 
-    شروع بخش جدید: کنترل‌های صفحه‌بندی <--- -->
     {% if pagination and pagination.pages > 1 %}
     <nav aria-label="Course navigation" class="mt-5">
         <ul class="pagination justify-content-center">
             <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
                 <a class="page-link" href="{{ url_for('courses', page=pagination.prev_num) }}">قبلی</a>
             </li>
-
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if page_num %}
                     <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
@@ -77,14 +79,12 @@
                     <li class="page-item disabled"><span class="page-link">…</span></li>
                 {% endif %}
             {% endfor %}
-
             <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
                 <a class="page-link" href="{{ url_for('courses', page=pagination.next_num) }}">بعدی</a>
             </li>
         </ul>
     </nav>
     {% endif %}
-    پایان بخش صفحه‌بندی <--- -->
 
 </div>
 {% endblock %}

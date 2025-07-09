@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">داشبورد مدیریت</h1>
+    
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white bg-primary shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">دانشجویان</h5>
+                            <p class="display-4">{{ student_count }}</p>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white bg-info shadow h-100">
+                <div class="card-body">
+                     <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">اساتید</h5>
+                            <p class="display-4">{{ instructor_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white bg-success shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">دوره‌ها</h5>
+                            <p class="display-4">{{ course_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white bg-secondary shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">ترم‌ها</h5>
+                            <p class="display-4">{{ term_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">دسترسی سریع</h5>
+                </div>
+                <div class="card-body text-center">
+                    <a href="{{ url_for('manage_users') }}" class="btn btn-lg btn-outline-dark m-2">مدیریت کاربران</a>
+                    <a href="{{ url_for('manage_courses') }}" class="btn btn-lg btn-outline-dark m-2">مدیریت دوره‌ها</a>
+                    <a href="{{ url_for('manage_terms') }}" class="btn btn-lg btn-outline-dark m-2">مدیریت ترم‌ها</a>
+                    <a href="{{ url_for('admin_reports') }}" class="btn btn-lg btn-outline-dark m-2">مشاهده گزارشات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

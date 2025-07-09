@@ -5,8 +5,11 @@
     <div class="container-fluid py-5">
         <h1 class="display-5 fw-bold">پورتال ثبت نام هوشمند</h1>
         <p class="fs-4">ثبت‌نام در دوره‌های آموزشی هرگز به این سادگی نبوده است. دوره‌های موجود را ببینید، برنامه خود را مدیریت کنید و کنترل یادگیری خود را به دست بگیرید.</p>
-        <a class="btn btn-primary btn-lg" href="#">مشاهده دوره‌ها</a>
-        <a class="btn btn-secondary btn-lg" href="{{ url_for('register') }}">شروع کنید</a>
+
+
+        <a class="btn btn-primary btn-lg" href="{{ url_for('courses') }}">مشاهده دوره‌ها</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}">ورود به حساب کاربری</a>
+
     </div>
 </div>
 {% endblock %}

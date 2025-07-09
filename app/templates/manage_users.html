@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">مدیریت کاربران</h1>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h4>ایجاد کاربر جدید</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('manage_users') }}" novalidate>
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">نام کاربری</label>
+                            {{ form.username(class="form-control", id="username") }}
+                            {% for error in form.username.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">ایمیل</label>
+                            {{ form.email(class="form-control", id="email") }}
+                             {% for error in form.email.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">رمز عبور موقت</label>
+                            {{ form.password(class="form-control", id="password") }}
+                             {% for error in form.password.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">نقش</label>
+                            {{ form.role(class="form-select", id="role") }}
+                             {% for error in form.role.errors %}<small class="text-danger d-block mt-1">{{ error }}</small>{% endfor %}
+                        </div>
+                        <button type="submit" name="submit_create" value="submit" class="btn btn-primary w-100">ایجاد کاربر</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>لیست کاربران موجود</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>نام کاربری</th>
+                                    <th>ایمیل</th>
+                                    <th style="width: 35%;">تغییر نقش</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users_pagination.items if user.id != current_user.id %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <form action="{{ url_for('set_user_role', user_id=user.id, page=users_pagination.page) }}" method="POST" class="d-flex gap-2">
+                                            {% set role_form = ChangeRoleForm(role=user.role) %}
+                                            {{ role_form.hidden_tag() }}
+                                            {{ role_form.role(class="form-select form-select-sm") }}
+                                            {{ role_form.submit_change(class="btn btn-outline-primary btn-sm") }}
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    شروع بخش صفحه‌بندی <--- -->
+                    {% if users_pagination and users_pagination.pages > 1 %}
+                    <nav aria-label="User navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {% if not users_pagination.has_prev %}disabled{% endif %}">
+                                <a class="page-link" href="{{ url_for('manage_users', page=users_pagination.prev_num) }}">قبلی</a>
+                            </li>
+                            {% for page_num in users_pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == users_pagination.page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('manage_users', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {% if not users_pagination.has_next %}disabled{% endif %}">
+                                <a class="page-link" href="{{ url_for('manage_users', page=users_pagination.next_num) }}">بعدی</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
