@@ -9,6 +9,7 @@ from app.forms import (LoginForm, CourseForm, EditProfileForm, TermForm,
                        GradeForm, AdminCreateUserForm, ChangeRoleForm)
 from app.models import User, Course, Enrollment, Term
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -41,6 +42,7 @@ def course_detail(course_id):
     enrollment_count = Enrollment.query.filter_by(course_id=course.id).count()
     remaining_capacity = course.capacity - enrollment_count
     return render_template('course_detail.html', title=course.title, course=course, remaining_capacity=remaining_capacity)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -80,6 +82,7 @@ def profile():
         form.username.data = current_user.username
         form.email.data = current_user.email
     return render_template('profile.html', title='پروفایل من', form=form)
+
 
 @app.route('/my_dashboard')
 @login_required
@@ -152,6 +155,7 @@ def unenroll(course_id):
     db.session.commit()
     flash('ثبت‌نام شما در این دوره با موفقیت لغو شد.', 'success')
     return redirect(url_for('my_dashboard'))
+
 
 @app.route('/admin/dashboard')
 @login_required
@@ -240,9 +244,12 @@ def deactivate_term(term_id):
 @app.route('/manage/courses')
 @login_required
 def manage_courses():
-    if current_user.role != 'admin':
+    if current_user.role not in ['admin', 'instructor']:
         abort(403)
-    courses = Course.query.order_by(Course.term_id.desc(), Course.title).all()
+    if current_user.role == 'admin':
+        courses = Course.query.order_by(Course.term_id.desc(), Course.title).all()
+    else: # Instructor
+        courses = Course.query.filter_by(instructor_id=current_user.id).order_by(Course.term_id.desc(), Course.title).all()
     return render_template('manage_courses.html', title='مدیریت دوره‌ها', courses=courses)
 
 @app.route('/course/new', methods=['GET', 'POST'])
@@ -268,21 +275,57 @@ def create_course():
         return redirect(url_for('manage_courses'))
     return render_template('course_form.html', title='ایجاد دوره جدید', form=form, legend='ایجاد دوره جدید')
 
+# @app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
+# @login_required
+# def edit_course(course_id):
+#     course = Course.query.get_or_404(course_id)
+#     if current_user.role != 'admin':
+#         abort(403)
+#     form = CourseForm(obj=course)
+#     if form.validate_on_submit():
+#         form.populate_obj(course)
+#         course.prereqs = form.prereqs.data
+#         db.session.commit()
+#         flash('دوره با موفقیت به‌روزرسانی شد!', 'success')
+#         return redirect(url_for('manage_courses'))
+#     elif request.method == 'GET':
+#         form.prereqs.data = course.prereqs.all()
+#     return render_template('course_form.html', title='ویرایش دوره', form=form, legend=f'ویرایش دوره: {course.title}')
+
+
 @app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_course(course_id):
+    """صفحه ویرایش یک دوره موجود (فقط ادمین)."""
     course = Course.query.get_or_404(course_id)
     if current_user.role != 'admin':
         abort(403)
+
+
     form = CourseForm(obj=course)
+
     if form.validate_on_submit():
-        form.populate_obj(course)
+
+        course.title = form.title.data
+        course.description = form.description.data
+        course.instructor_id = form.instructor.data.id
+        course.term_id = form.term.data.id
         course.prereqs = form.prereqs.data
+        course.credits = form.credits.data
+        course.day_of_week = form.day_of_week.data
+        course.start_time = form.start_time.data
+        course.end_time = form.end_time.data
+        course.capacity = form.capacity.data
+
+
         db.session.commit()
         flash('دوره با موفقیت به‌روزرسانی شد!', 'success')
         return redirect(url_for('manage_courses'))
+
     elif request.method == 'GET':
+
         form.prereqs.data = course.prereqs.all()
+
     return render_template('course_form.html', title='ویرایش دوره', form=form, legend=f'ویرایش دوره: {course.title}')
 
 @app.route('/course/<int:course_id>/delete', methods=['POST'])

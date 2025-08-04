@@ -38,7 +38,7 @@
                         </li>
                     </ul>
 
-                    شروع تغییر اصلی <--- -->
+
                     {% if current_user.is_authenticated and current_user.role == 'student' %}
                         <div class="mt-auto">
                             {% if course.id in student_enrollments_ids %}
@@ -52,7 +52,7 @@
                             {% endif %}
                         </div>
                     {% endif %}
-                    پایان تغییر اصلی <--- -->
+
 
                 </div>
             </div>
