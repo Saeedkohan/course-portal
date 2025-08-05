@@ -85,7 +85,7 @@ Follow these steps to get a local copy up and running.
 ### Installation
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/course-portal.git](https://github.com/your-username/course-portal.git)
+    git clone [https://github.com/Saeedkohan/course-portal.git](https://github.com/Saeedkohan/course-portal.git)
     cd course-portal
     ```
 
