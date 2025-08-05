@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.x-orange.svg)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 
 A full-featured, Flask-based web application designed to streamline the management of academic courses, student enrollments, and instructor workflows.
 
@@ -25,7 +25,7 @@ A full-featured, Flask-based web application designed to streamline the manageme
   - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
+- 
 
 ## 📌 About The Project
 
@@ -138,7 +138,3 @@ To contribute:
 3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
 4.  Push to the Branch (`git push origin feature/AmazingFeature`).
 5.  Open a new Pull Request.
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
